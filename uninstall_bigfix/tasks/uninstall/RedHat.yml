@@ -1,6 +1,20 @@
 ---
 
-- name: Install BigFix Client
+- name: Stop the service
+  service:
+    name: "{{ bigfix_client_service_name }}"
+    state: stopped
+
+- name: Check bigfix version
+  raw: rpm -qa | grep -i besa > /tmp/agentversion.txt
+
+- name: Get bigfix version
+  shell: cat /tmp/agentversion.txt
+  register: bigfix
+
+- debug: var=bigfix.stdout_lines
+
+- name: Uninstall BigFix Client
   yum:
-    name: "/tmp/{{ bigfix_client_file_dest }}"
-    state: present
+    name: "{{ bigfix.stdout }}"
+    state: absent
